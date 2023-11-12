@@ -1,4 +1,4 @@
-package com.github.dinbtechit.jetbrainsfirebase
+package com.github.dinbtechit.firebase
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

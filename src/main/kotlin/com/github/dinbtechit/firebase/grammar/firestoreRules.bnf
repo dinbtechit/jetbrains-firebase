@@ -1,0 +1,290 @@
+{
+ parserClass="com.github.dinbtechit.firebase.language.parser.RulesParser"
+ parserUtilClass="com.github.dinbtechit.firebase.language.parser.RulesParserUtil"
+
+ extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+ psiClassPrefix="PsiFirestoreRules"
+ psiImplClassSuffix="Impl"
+ psiPackage="com.github.dinbtechit.firebase.psi.types"
+ psiImplPackage="com.github.dinbtechit.firebase.psi.types.impl"
+
+ elementTypeHolderClass="com.github.dinbtechit.firebase.psi.FirestoreRulesTypes"
+ elementTypeClass="com.github.dinbtechit.firebase.psi.RulesElementTypes"
+ tokenTypeClass="com.github.dinbtechit.firebase.psi.RulesTokenType"
+
+ tokens = [
+     WHITESPACE='regexp:[ \n\t\r\f]'
+     BOOL_LITERAL='regexp:(true)|(false)'
+     NUMBER_LITERAL='regexp:\d+(\.\d*)?'
+     STRING_LITERAL="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+     PATH_VARIABLE_LITERAL="regexp:\{[_a-zA-Z0-9]+(=\*\*)?}"
+     PATH_BUILT_IN_LITERAL="regexp:\$\([._a-zA-Z0-9]*\)"
+     IDENTIFIER='regexp:[_a-zA-Z0-9\-]+'
+
+     L_BRACE        =  '{'
+     R_BRACE        =  '}'
+     L_BRACK        =  '['
+     R_BRACK        =  ']'
+     L_PAREN        =  '('
+     R_PAREN        =  ')'
+     COLON_COLON    =  '::'
+     COLON          =  ':'
+     SEMICOLON      =  ';'
+     COMMA          =  ','
+     QUOTE          = "'"
+     DOUBLE_QUOTE   = '"'
+     LT             =  '<'
+     GT             =  '>'
+     AND            = '&'
+     OR             = '|'
+     EQ_EQ          = '=='
+     NOT_EQ         = '!='
+     EQ             = '='
+     DOT            =  '.'
+
+     EXCL           =  '!'
+     PLUS           =  '+'
+     MINUS          =  '-'
+     XOR            =  '^'
+     MUL            =  '*'
+     DIV            =  '/'
+     MODULO         =  '%'
+     AT             =  '@'
+     HASH           =  '#'
+     Q_MARK         =  '?'
+
+     // Contextual tokens
+     LT_EQ           = '<='
+     LT_LT           = '<<'
+     GT_EQ           = '>='
+     GT_GT           = '>>'
+     OR_OR           = '||'
+     AND_AND         = '&&'
+
+     /*SLASH = '/'
+     op = '->'
+     COLON = ':'
+     COMMA = ','
+     EQ = '='
+     DOT = '.'
+     Q_MARK = '?'
+     DOT_COMMA = ';'
+     WILD_CARD = '=**'
+     MODULO         =  '%'
+     char = 'regexp:[\n\r\u2028\u2029]'
+     LINE_COMMENT='LINE_COMMENT'
+     BLOCK_COMMENT='BLOCK_COMMENT'*/
+
+     LINE_COMMENT = "regexp://[^\n]*\n?"
+     BLOCK_COMMENT = "regexp:(/\*([^*]|(\*+[^*/]))*(\*+/))"
+     REQUEST  = 'request'
+     RESOURCE = 'resource'
+
+     RULES_VERSION = 'rules_version'
+
+     SERVICE     = "service"
+     ALLOW       = 'allow'
+     FUNCTION    = 'function'
+     MATCH       = 'match'
+     LET         = 'let'
+
+     // Secondary Keywords
+     IF = 'if'
+     RETURN = 'return'
+
+     //Permission keywords
+     EXITS   = 'exists'
+     GET     = 'get'
+     READ    = 'read'
+     WRITE   = 'write'
+     LIST    = 'list'
+     CREATE  = 'create'
+     UPDATE  = 'update'
+     DELETE  = 'delete'
+
+     //Types
+     BOOL        = 'bool_kw'
+     INT         = 'int_kw'
+     FLOAT       = 'float_kw'
+     NUMBER      = 'number_kw'
+     STRING      = 'string_kw'
+     MAP         = 'map_kw'
+     TIMESTAMP   = 'timestamp_kw'
+     DURATION    = 'duration_kw'
+     LATLNG      = 'latlng_kw'
+   ]
+   extends('.*Expression') = 'expressionWrapper'
+}
+
+ruleFile ::= FileStructure
+
+FileStructure ::= VersionDef? ruleBlock*
+private ruleBlock ::= serviceBlock | functionBlock
+
+//Rules version definition
+VersionDef ::= 'rules_version' '=' Versions ';'? { pin = 2 }
+Versions ::= STRING_LITERAL
+
+serviceBlock ::= "service" serviceName "{"  [ serviceBody* ]  "}" {pin = 1}
+serviceName ::= "cloud.firestore" | "firebase.storage"
+serviceBody ::= WHITESPACE | commentRule | blockCommentRule | functionBlock | topLevelMatchRule
+
+// Function
+functionBlock ::= functionKeyword functionName functionParameter "{" functionBody* "}" {
+ pin = 1
+ mixin="com.github.dinbtechit.firebase.psi.types.function.RuleFunctionNamedElementImpl"
+ implements="com.github.dinbtechit.firebase.psi.types.function.RuleFunctionNamedElement"
+ methods=[getName setName getNameIdentifier getPresentation]
+}
+
+functionKeyword ::= "function" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.keywords.RuleKeywordElement"
+}
+functionName ::= IDENTIFIER {
+ pin = 1
+}
+left functionParameter ::= '(' ')' {
+ pin = 1
+}
+functionBody ::= WHITESPACE
+                    | commentRule | variableDeclaration
+                    | functionCallWithSEMI | returnStmt
+variableDeclaration ::= LET variableName [variableInitializationExpression] [SEMICOLON] {
+ pin = 1
+}
+variableName ::= IDENTIFIER
+variableInitializationExpression ::= "=" (NUMBER_LITERAL|STRING_LITERAL|variableName) {
+ pin = 1
+}
+returnStmt ::= {RETURN [expressionWrapper|variableName] [SEMICOLON]} {
+ pin = 1
+}
+
+// Function Call Expression
+
+functionCallWithSEMI ::= functionCallExpression SEMICOLON {
+ pin = '.*'
+}
+
+functionCallExpression ::= functionName '(' functionArgumentList? ')' {
+ pin = '.*'
+}
+functionArgumentList ::= functionArgument (',' functionArgument)* {
+ pin = 1
+}
+functionArgument ::= IDENTIFIER | STRING_LITERAL | expressionWrapper
+
+// ==========================================================================================
+
+// TopLevel MatchRule
+topLevelMatchRule ::= "match" WHITESPACE* topLevelMatchPath  topMatchBody {
+ pin = 1
+}
+topMatchBody ::= WHITESPACE* "{" topMatchContents* "}" {
+ pin = 1
+ recoverWhile = topMatchBodyRecover
+}
+private topMatchBodyRecover ::= !("}"|topMatchContents)
+private topMatchContents ::= WHITESPACE | commentRule | allowRule | functionBlock | subMatchRule
+topLevelMatchPath ::= topDirectories
+private topDirectories ::= '/' topCollection ('/' document)* | directories
+private topCollection ::= 'databases'
+
+
+// sub MatchRule
+subMatchRule ::= "match" subMatchPath subMatchBody {
+ pin = 1
+}
+subMatchBody ::= "{" subMatchContents* "}" {
+ pin = 1
+ recoverWhile = matchBodyRecover
+}
+private matchBodyRecover ::= !("}"|subMatchContents)
+subMatchContents ::= WHITESPACE | commentRule | allowRule | functionBlock | subMatchRule
+subMatchPath ::= directories
+private directories ::= '/' collection ('/' document)* | directories {
+ pin('.*') = 1
+}
+private collection ::= IDENTIFIER | 'databases'
+private document ::= IDENTIFIER | PATH_VARIABLE_LITERAL
+
+// allow
+allowRule ::= allowKeyword methods (conditionRule | SEMICOLON )
+
+allowKeyword ::= ALLOW {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.keywords.RuleKeywordElement"
+}
+methods ::=  method (',' method)* {
+ pin(".*")= method
+}
+method ::=  getMethod|listMethod|createMethod|updateMethod|deleteMethod|readMethod|writeMethod
+
+getMethod ::= "get" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+listMethod ::= "list" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+createMethod ::= "create" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+updateMethod ::= "update" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+deleteMethod ::= "delete" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+readMethod ::= "read" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+writeMethod ::= "write" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleTypeElement"
+}
+conditionRule ::= COLON ifStatement ';' {
+ pin = 1
+}
+ifStatement ::= ifKeyword ifCondition {
+ pin = 1
+}
+
+ifKeyword ::= "if" {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.keywords.RuleSecondaryKeywordElement"
+}
+
+ifCondition ::= ifLogic | ifLogicWithBrackets {
+ pin('.*') = 1
+}
+ifLogic ::=  ifConditionExpression
+ifLogicWithBrackets ::= L_PAREN ifConditionExpression R_PAREN {
+ pin = 1
+}
+private ifConditionExpression ::= getFunction | functionCallExpression | variableName | expressionWrapper
+
+upper getFunction ::= GET "(" [directories] ")" {
+ pin = 1
+}
+
+// Comment or Block Comment
+commentRule ::=  (LINE_COMMENT|blockCommentRule) {
+  elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleCommentElement"
+}
+blockCommentRule ::= BLOCK_COMMENT {
+ elementTypeClass = "com.github.dinbtechit.firebase.psi.types.RuleBlockCommentElement"
+}
+
+// Expression
+expressionWrapper ::= arithmeticExpression
+                        | booleanExpression
+
+// Arithmetic Expr
+arithmeticExpression ::= term (add_op term)*
+term ::= factor (mult_op factor)*
+factor ::= NUMBER_LITERAL | "(" arithmeticExpression ")"
+add_op ::= "+" | "-"
+mult_op ::= "*" | "/"
+
+
+// Boolean Expression
+booleanExpression ::= BOOL_LITERAL
+

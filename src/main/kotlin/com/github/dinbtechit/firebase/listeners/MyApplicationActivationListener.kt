@@ -1,4 +1,4 @@
-package com.github.dinbtechit.jetbrainsfirebase.listeners
+package com.github.dinbtechit.firebase.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

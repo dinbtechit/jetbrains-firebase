@@ -1,9 +1,9 @@
-package com.github.dinbtechit.jetbrainsfirebase.services
+package com.github.dinbtechit.firebase.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.dinbtechit.jetbrainsfirebase.MyBundle
+import com.github.dinbtechit.firebase.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

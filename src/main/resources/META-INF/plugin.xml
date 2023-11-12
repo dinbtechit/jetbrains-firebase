@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.dinbtechit.jetbrainsfirebase</id>
-    <name>jetbrains-firebase Template</name>
+    <id>com.github.dinbtechit.firebase</id>
+    <name>Firebase</name>
     <vendor>dinbtechit</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -9,10 +9,27 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.dinbtechit.jetbrainsfirebase.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <fileType  name="FirestoreRules"
+                   implementationClass="com.github.dinbtechit.firebase.language.fileType.FirestoreFileType"
+                   fieldName="INSTANCE" language="FirestoreRules" extensions="rules"/>
+        <lang.parserDefinition
+                language="FirestoreRules"
+                implementationClass="com.github.dinbtechit.firebase.language.parser.RulesParserDefinition"/>
+        <lang.commenter language="FirestoreRules"
+                        implementationClass="com.github.dinbtechit.firebase.language.commenter.FirestoreRulesCommenter"/>
+        <annotator id="FireStoreAnnotator"
+                language="FirestoreRules"
+                implementationClass="com.github.dinbtechit.firebase.language.annotator.FirestoreRulesHighlightAnnotator"/>
+        <lang.braceMatcher language="FirestoreRules"
+                           implementationClass="com.github.dinbtechit.firebase.language.braceMatcher.FirestorePairedBraceMatcher"/>
+        <lang.quoteHandler language="FirestoreRules"
+                           implementationClass="com.github.dinbtechit.firebase.language.quoteHandler.FirestoreQuoteHandler"/>
+        <lang.syntaxHighlighterFactory
+                language="FirestoreRules"
+                implementationClass="com.github.dinbtechit.firebase.language.highlighter.FirestoreRulesSyntaxHighlightFactory"/>
+        <highlightVisitor order="first"
+                implementation="com.github.dinbtechit.firebase.language.highlighter.FirestoreRulesHighlightVisitor"/>
+        <toolWindow factoryClass="com.github.dinbtechit.firebase.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.dinbtechit.jetbrainsfirebase.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 </idea-plugin>
