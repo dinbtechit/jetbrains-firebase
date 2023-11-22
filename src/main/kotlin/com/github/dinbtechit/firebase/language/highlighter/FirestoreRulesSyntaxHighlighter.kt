@@ -4,12 +4,11 @@ package com.github.dinbtechit.firebase.language.highlighter
 
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.BOOL_LITERAL
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.COMMENT
-import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.FUNCTION_NAME
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.KEYWORD
+import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.LOCAL_VARIABLE
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.PATH_VARIABLE
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.SECONDARY_KEYWORD
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.STRING_LITERAL
-
 import com.github.dinbtechit.firebase.language.parser.FirestoreRulesLexerAdapter
 import com.github.dinbtechit.firebase.psi.FirestoreRulesTypes
 import com.intellij.lexer.Lexer
@@ -48,11 +47,13 @@ class FirestoreRulesSyntaxHighlighter : SyntaxHighlighterBase() {
                 return array(TYPES)
             }*/
 
+            FirestoreRulesTypes.REQUEST, FirestoreRulesTypes.RESOURCE -> return array(LOCAL_VARIABLE)
+
             FirestoreRulesTypes.BOOL_LITERAL -> return  array(BOOL_LITERAL)
 
-            FirestoreRulesTypes.FUNCTION_NAME -> {
+            /*FirestoreRulesTypes.FUNCTION_NAME -> {
                 return  array(FUNCTION_NAME)
-            }
+            }*/
         }
         return arrayOf()
     }

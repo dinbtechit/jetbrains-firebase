@@ -31,14 +31,15 @@ NUMBER_LITERAL=[0-9]+(\.[0-9]*)?
 STRING_LITERAL=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 PATH_VARIABLE_LITERAL=\{[_a-zA-Z0-9]+(=\*\*)?}
 PATH_BUILT_IN_LITERAL=\$\([._a-zA-Z0-9]*\)
+LINE_COMMENT="//".*
+BLOCK_COMMENT="/"\*([^*]|\*+[^*/])*(\*+"/")?
 IDENTIFIER=[_a-zA-Z0-9\-]+
-LINE_COMMENT="//"[^\n]*\n?
-BLOCK_COMMENT=("/"\*([^*]|(\*+[^*/]))*(\*+"/"))
 
 %%
 <YYINITIAL> {
   {WHITE_SPACE}                 { return WHITE_SPACE; }
 
+  "rules_version"               { return RULES_VERSION; }
   "{"                           { return L_BRACE; }
   "}"                           { return R_BRACE; }
   "["                           { return L_BRACK; }
@@ -77,7 +78,6 @@ BLOCK_COMMENT=("/"\*([^*]|(\*+[^*/]))*(\*+"/"))
   "&&"                          { return AND_AND; }
   "request"                     { return REQUEST; }
   "resource"                    { return RESOURCE; }
-  "rules_version"               { return RULES_VERSION; }
   "service"                     { return SERVICE; }
   "allow"                       { return ALLOW; }
   "function"                    { return FUNCTION; }
@@ -85,7 +85,7 @@ BLOCK_COMMENT=("/"\*([^*]|(\*+[^*/]))*(\*+"/"))
   "let"                         { return LET; }
   "if"                          { return IF; }
   "return"                      { return RETURN; }
-  "exists"                      { return EXITS; }
+  "in"                          { return IN; }
   "get"                         { return GET; }
   "read"                        { return READ; }
   "write"                       { return WRITE; }
@@ -93,9 +93,13 @@ BLOCK_COMMENT=("/"\*([^*]|(\*+[^*/]))*(\*+"/"))
   "create"                      { return CREATE; }
   "update"                      { return UPDATE; }
   "delete"                      { return DELETE; }
-  "bool_kw"                     { return BOOL; }
-  "int_kw"                      { return INT; }
-  "float_kw"                    { return FLOAT; }
+  "exists"                      { return EXISTS; }
+  "existsAfter"                 { return EXISTS_AFTER; }
+  "getAfter"                    { return GET_AFTER; }
+  "bind"                        { return BIND; }
+  "bool"                        { return BOOL; }
+  "int"                         { return INT; }
+  "float"                       { return FLOAT; }
   "number_kw"                   { return NUMBER; }
   "string_kw"                   { return STRING; }
   "map_kw"                      { return MAP; }
@@ -109,9 +113,9 @@ BLOCK_COMMENT=("/"\*([^*]|(\*+[^*/]))*(\*+"/"))
   {STRING_LITERAL}              { return STRING_LITERAL; }
   {PATH_VARIABLE_LITERAL}       { return PATH_VARIABLE_LITERAL; }
   {PATH_BUILT_IN_LITERAL}       { return PATH_BUILT_IN_LITERAL; }
-  {IDENTIFIER}                  { return IDENTIFIER; }
   {LINE_COMMENT}                { return LINE_COMMENT; }
   {BLOCK_COMMENT}               { return BLOCK_COMMENT; }
+  {IDENTIFIER}                  { return IDENTIFIER; }
 
 }
 

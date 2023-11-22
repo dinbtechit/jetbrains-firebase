@@ -8,7 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 
 object RulesUtil {
-    fun findFunctions(project: Project, functionName: String): List<RuleFunctionNamedElement> {
+    fun findFunctions(project: Project, functionName: String? = null): List<RuleFunctionNamedElement> {
         val result = mutableListOf<RuleFunctionNamedElement>()
         val virtualFiles = FileTypeIndex.getFiles(FirestoreFileType.INSTANCE, GlobalSearchScope.allScope(project))
         for(virtualFile in virtualFiles) {
@@ -16,7 +16,11 @@ object RulesUtil {
             if (rulesFile != null) {
                 val functions = PsiTreeUtil.getChildrenOfType(rulesFile, RuleFunctionNamedElement::class.java)
                 if (functions != null) {
-                    result.addAll(functions.filter { it.getName() == functionName })
+                    if (functionName == null) {
+                       result.addAll(functions)
+                    } else {
+                        result.addAll(functions.filter { it.getName() == functionName })
+                    }
                 }
             }
         }

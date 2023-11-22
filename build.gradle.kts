@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -11,6 +12,7 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
+    id("org.jetbrains.grammarkit") version "2021.2.2"
 }
 
 group = properties("pluginGroup").get()
@@ -106,6 +108,33 @@ tasks {
             }
         }
     }
+
+    generateLexer {
+        source.set("src/main/kotlin/com/github/dinbtechit/firebase/grammar/_RulesLexer.flex")
+        targetDir.set("src/main/gen/com/github/dinbtechit/firebase/grammar")
+        targetClass.set("_RulesLexer")
+        purgeOldFiles.set(true)
+    }
+
+    generateParser {
+        source.set("src/main/kotlin/com/github/dinbtechit/firebase/grammar/firestoreRules.bnf")
+        targetRoot.set("src/main/gen")
+        pathToParser.set("/com/github/dinbtechit/firebase/language/parser/RulesParser.java")
+        pathToPsiRoot.set("/com/github/dinbtechit/firebase/psi")
+        purgeOldFiles.set(true)
+    }
+
+    withType<KotlinCompile> {
+        dependsOn(generateLexer, generateParser)
+        kotlinOptions {
+            jvmTarget = "17"
+            languageVersion = "1.8"
+            apiVersion = "1.8"
+            freeCompilerArgs = listOf("-Xjvm-default=all")
+        }
+    }
+
+
 
     // Configure UI tests plugin
     // Read more: https://github.com/JetBrains/intellij-ui-test-robot

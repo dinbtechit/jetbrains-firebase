@@ -6,12 +6,12 @@ import com.intellij.psi.PsiElement
 
 object RulesPsiImplUtil {
     fun getFunctionName(element: RuleFunctionNamedElement): String? {
-        val keyNode = element.getNode().findChildByType(FirestoreRulesTypes.FUNCTION_NAME)
+        val keyNode = element.node.findChildByType(FirestoreRulesTypes.FUNCTION_NAME)
         return keyNode?.text?.replace("\\\\ ", " ")
     }
 
     fun setName(element: RuleFunctionNamedElement, newName: String): PsiElement {
-        val keyNode = element.getNode().findChildByType(FirestoreRulesTypes.FUNCTION_NAME)
+        val keyNode = element.node.findChildByType(FirestoreRulesTypes.FUNCTION_NAME)
         if (keyNode != null) {
             val property = RulesElementFactory.createFunction(element.project, newName)
             val newKeyNode: ASTNode = property.firstChild.node
