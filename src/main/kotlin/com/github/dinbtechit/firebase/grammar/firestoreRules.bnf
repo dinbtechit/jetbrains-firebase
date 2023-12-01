@@ -18,6 +18,7 @@
      RULES_VERSION = 'rules_version'
      BOOL_LITERAL='regexp:(true)|(false)'
      NUMBER_LITERAL='regexp:\d+(\.\d*)?'
+     NULL_LIT = 'null'
      STRING_LITERAL="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
      PATH_VARIABLE_LITERAL="regexp:\{[_a-zA-Z0-9]+(=\*\*)?}"
      PATH_BUILT_IN_LITERAL="regexp:\$\([._a-zA-Z0-9]*\)"
@@ -85,6 +86,7 @@
      ALLOW       = 'allow'
      FUNCTION    = 'function'
      MATCH       = 'match'
+     // Keywords
      LET         = 'let'
 
      // Secondary Keywords
@@ -183,9 +185,9 @@ variableInitialization ::= "=" variableAssignmentElements SEMICOLON {
 variableAssignment ::= variableName "=" variableAssignmentElements SEMICOLON {
  pin = 2
 }
-private variableAssignmentElements ::=  functionCallStmt | variableName  | expressionWrapper | NUMBER_LITERAL | STRING_LITERAL
+private variableAssignmentElements ::=  expressionWrapper | functionCallStmt | variableName | NUMBER_LITERAL | STRING_LITERAL
 
-returnStmt ::= {RETURN [expressionWrapper|variableName] SEMICOLON} {
+returnStmt ::= {RETURN [rulesMethod|expressionWrapper|variableName] SEMICOLON} {
  pin = 1
 }
 
@@ -246,7 +248,7 @@ ifLogic ::=  ifConditionExpression
 ifLogicWithBrackets ::= L_PAREN ifConditionExpression R_PAREN {
  pin = 1
 }
-private ifConditionExpression ::= rulesMethod | object | functionCallStmt | variableName | expressionWrapper
+private ifConditionExpression ::= expressionWrapper | rulesMethod | object | functionCallStmt | variableName
 
 // rules.firestore methods
 rulesMethod ::= methods "(" getPath ")" bindMethod? {
@@ -285,8 +287,13 @@ blockCommentRule ::= BLOCK_COMMENT {
 }
 
 // Expression
-expressionWrapper ::= arithmeticExpression
+expressionWrapper ::= ternaryExpression
+                        | logicalExpression
+                        | arithmeticExpression
                         | booleanExpression
+
+
+
 
 // Arithmetic Expr
 arithmeticExpression ::= term (add_op term)*
@@ -296,6 +303,16 @@ add_op ::= "+" | "-"
 mult_op ::= "*" | "/" | '%'
 
 // Logical Expression
+logicalExpression ::= logicalOperand logicalOperator logicalOperand {
+pin = 2
+}
+logicalOperand ::=  NULL_LIT | NUMBER_LITERAL | STRING_LITERAL | BOOL_LITERAL | rulesMethod | functionCallStmt | object | variableName
+logicalOperator ::= '&&' | '||' | '&' | '|' | '!=' | '==' | '>=' | '<=' | '<' | '>'
+
+ternaryExpression ::= ternaryCondition '?' ternaryTruePart ':' ternaryFalsePart
+ternaryCondition ::= logicalExpression | BOOL_LITERAL | functionCallStmt | variableName |
+ternaryTruePart ::=  functionCallStmt | variableName | NUMBER_LITERAL | BOOL_LITERAL | STRING_LITERAL
+ternaryFalsePart ::= functionCallStmt | variableName | NUMBER_LITERAL | BOOL_LITERAL | STRING_LITERAL
 
 
 // Boolean Expression
