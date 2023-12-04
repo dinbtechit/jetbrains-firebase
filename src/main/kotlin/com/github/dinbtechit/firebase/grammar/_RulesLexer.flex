@@ -40,6 +40,7 @@ IDENTIFIER=[_a-zA-Z0-9\-]+
   {WHITE_SPACE}                 { return WHITE_SPACE; }
 
   "rules_version"               { return RULES_VERSION; }
+  "null"                        { return NULL_LITERAL; }
   "{"                           { return L_BRACE; }
   "}"                           { return R_BRACE; }
   "["                           { return L_BRACK; }

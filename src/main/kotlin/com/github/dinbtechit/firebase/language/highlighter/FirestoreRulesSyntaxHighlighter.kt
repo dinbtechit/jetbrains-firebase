@@ -6,6 +6,7 @@ import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttribute
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.COMMENT
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.KEYWORD
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.LOCAL_VARIABLE
+import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.NUMBER_LITERAL
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.PATH_VARIABLE
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.SECONDARY_KEYWORD
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.STRING_LITERAL
@@ -32,7 +33,7 @@ class FirestoreRulesSyntaxHighlighter : SyntaxHighlighterBase() {
                 return  array(PATH_VARIABLE)
             }
 
-            FirestoreRulesTypes.ALLOW, FirestoreRulesTypes.FUNCTION,
+            FirestoreRulesTypes.ALLOW, FirestoreRulesTypes.FUNCTION, FirestoreRulesTypes.NULL_LITERAL,
             FirestoreRulesTypes.MATCH, FirestoreRulesTypes.SERVICE, FirestoreRulesTypes.LET -> {
                 return  array(KEYWORD)
             }
@@ -50,6 +51,7 @@ class FirestoreRulesSyntaxHighlighter : SyntaxHighlighterBase() {
             FirestoreRulesTypes.REQUEST, FirestoreRulesTypes.RESOURCE -> return array(LOCAL_VARIABLE)
 
             FirestoreRulesTypes.BOOL_LITERAL -> return  array(BOOL_LITERAL)
+            FirestoreRulesTypes.NUMBER_LITERAL -> return  array(NUMBER_LITERAL)
 
             /*FirestoreRulesTypes.FUNCTION_NAME -> {
                 return  array(FUNCTION_NAME)

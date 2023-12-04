@@ -19,6 +19,7 @@ object FirestoreRulesTextAttributeKeys {
     val PATH_VARIABLE = createFireRuleAttributeKey("PATH_VARIABLE", DefaultLanguageHighlighterColors.LOCAL_VARIABLE)
     val SECONDARY_KEYWORD = createFireRuleAttributeKey("SECONDARY_KEYWORD", DEFAULT_SECONDARY_KEYWORD)
     val STRING_LITERAL = createFireRuleAttributeKey("STRING_LITERAL", STRING)
+    val NUMBER_LITERAL = createFireRuleAttributeKey("NUMBER_LITERAL", NUMBER)
 
     private fun createFireRuleAttributeKey(keyNameSuffix: String, defaultHighlighterColors: TextAttributesKey) =
         createTextAttributesKey("FIRE_RULE_$keyNameSuffix", defaultHighlighterColors)

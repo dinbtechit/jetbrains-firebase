@@ -18,7 +18,7 @@
      RULES_VERSION = 'rules_version'
      BOOL_LITERAL='regexp:(true)|(false)'
      NUMBER_LITERAL='regexp:\d+(\.\d*)?'
-     NULL_LIT = 'null'
+     NULL_LITERAL = 'null'
      STRING_LITERAL="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
      PATH_VARIABLE_LITERAL="regexp:\{[_a-zA-Z0-9]+(=\*\*)?}"
      PATH_BUILT_IN_LITERAL="regexp:\$\([._a-zA-Z0-9]*\)"
@@ -62,20 +62,6 @@
      GT_GT           = '>>'
      OR_OR           = '||'
      AND_AND         = '&&'
-
-     /*SLASH = '/'
-     op = '->'
-     COLON = ':'
-     COMMA = ','
-     EQ = '='
-     DOT = '.'
-     Q_MARK = '?'
-     DOT_COMMA = ';'
-     WILD_CARD = '=**'
-     MODULO         =  '%'
-     char = 'regexp:[\n\r\u2028\u2029]'
-     LINE_COMMENT='LINE_COMMENT'
-     BLOCK_COMMENT='BLOCK_COMMENT'*/
 
      LINE_COMMENT='regexp://.*'
      BLOCK_COMMENT='regexp:/\*([^*]|\*+[^*/])*(\*+/)?'
@@ -150,26 +136,28 @@ private serviceElements ::= functionBlock | matchBlock {
 private serviceBodyRecover ::= !('}'| functionBlock | matchBlock )
 
 // --- Function Block ----
-functionBlock ::= FUNCTION functionName functionParameter functionBody {
+functionBlock ::= FUNCTION functionName '(' functionParameterList? ')' functionBody {
  pin = 1
 }
-functionName ::= IDENTIFIER {
+functionName ::=  'get' | BIND | IDENTIFIER {
  pin = 1
 }
-functionParameter ::= '(' ')' {
+functionParameterList ::=  functionParameter (',' functionParameter )*  {
  pin = 1
 }
+functionParameter ::= variableName
 functionBody ::= '{' functionBodyElements* '}' {
  pin = 1
 }
 
 private functionBodyElements ::= commentRule | variableDeclaration
-                                 | variableAssignment
+                                 | variableAssignment | expressionWrapperWithSemi
                                  | functionCallStmtWithSemi | returnStmt {
  pin = 1
  recoverWhile = functionBodyRecover
 }
 private functionBodyRecover ::= !('}'|variableDeclaration | variableAssignment
+                                     | expressionWrapperWithSemi
                                      | functionCallStmtWithSemi | returnStmt)
 // --- Function Elements ----
 // Variable Declaration
@@ -187,9 +175,11 @@ variableAssignment ::= variableName "=" variableAssignmentElements SEMICOLON {
 }
 private variableAssignmentElements ::=  expressionWrapper | functionCallStmt | variableName | NUMBER_LITERAL | STRING_LITERAL
 
-returnStmt ::= {RETURN [rulesMethod|expressionWrapper|variableName] SEMICOLON} {
+returnStmt ::= RETURN (returnStmtElements*) SEMICOLON {
  pin = 1
 }
+
+returnStmtElements ::= expressionWrapper | functionCallStmt | rulesMethod | variableName
 
 // Return Statement
 
@@ -199,11 +189,11 @@ functionCallStmtWithSemi ::= functionCallStmt SEMICOLON {
  pin = '1'
 }
 
-functionCallStmt ::= functionName '(' functionArgumentList? ')'
+functionCallStmt ::= functionName '(' functionArgumentList? ')' returnVariable?
 functionArgumentList ::= functionArgument (',' functionArgument)* {
  pin = 1
 }
-functionArgument ::= variableName | STRING_LITERAL | expressionWrapper
+functionArgument ::= BOOL_LITERAL | STRING_LITERAL | NULL_LITERAL | NUMBER_LITERAL | expressionWrapper | jsonObject | jsonArray | functionCallStmt | object | variableName
 
 // --- Match Block -----
 matchBlock ::= MATCH matchPath matchBody {
@@ -248,13 +238,18 @@ ifLogic ::=  ifConditionExpression
 ifLogicWithBrackets ::= L_PAREN ifConditionExpression R_PAREN {
  pin = 1
 }
-private ifConditionExpression ::= expressionWrapper | rulesMethod | object | functionCallStmt | variableName
+private ifConditionExpression ::= expressionWrapper | rulesMethod | functionCallStmt | object | variableName
 
 // rules.firestore methods
-rulesMethod ::= methods "(" getPath ")" bindMethod? {
+rulesMethod ::= methods "(" getPath ")" ruleMethodReturnVariable? {
  pin = 1
 }
-bindMethod ::= '.' BIND '(' jsonObject ')'
+ruleMethodReturnVariable ::=  returnVariableBlock
+returnVariableBlock ::= '.' returnVariable ( '.' returnVariable)*
+returnVariable ::= functionCallStmt | mapVariable | variableName
+mapVariable ::= variableName '[' (variableName | STRING_LITERAL | NUMBER_LITERAL | NULL_LITERAL) ']'
+
+//bindMethod ::= '.' BIND '(' jsonObject ')'
 
 jsonObject ::= '{' pair (',' pair)* '}'
 private pair ::= keyValue ':' jsonValue
@@ -270,10 +265,10 @@ getPath ::= '/' getSubPath ('/' getSubPath)* {
 private getSubPath ::= IDENTIFIER | NUMBER_LITERAL | PATH_BUILT_IN_LITERAL
 
 // Object
-object ::= interfaceType  ('.' objectProperty)* {
+object ::= interfaceType  ('.' (interfaceType | objectProperty))* {
  pin('.*') = 1
 }
-private interfaceType ::= REQUEST | RESOURCE
+private interfaceType ::= REQUEST | RESOURCE | variableName
 objectProperty ::= functionCallStmt | IDENTIFIER
 
 // --- Common Elements ----
@@ -292,7 +287,7 @@ expressionWrapper ::= ternaryExpression
                         | arithmeticExpression
                         | booleanExpression
 
-
+expressionWrapperWithSemi ::= expressionWrapper SEMICOLON
 
 
 // Arithmetic Expr
@@ -303,10 +298,11 @@ add_op ::= "+" | "-"
 mult_op ::= "*" | "/" | '%'
 
 // Logical Expression
-logicalExpression ::= logicalOperand logicalOperator logicalOperand {
+logicalExpression ::= logicalOperand logicalOperator logicalOperand [(logicalOperator logicalOperand)*] {
 pin = 2
 }
-logicalOperand ::=  NULL_LIT | NUMBER_LITERAL | STRING_LITERAL | BOOL_LITERAL | rulesMethod | functionCallStmt | object | variableName
+
+logicalOperand ::=  NULL_LITERAL | NUMBER_LITERAL | STRING_LITERAL | BOOL_LITERAL | rulesMethod | functionCallStmt | object | variableName
 logicalOperator ::= '&&' | '||' | '&' | '|' | '!=' | '==' | '>=' | '<=' | '<' | '>'
 
 ternaryExpression ::= ternaryCondition '?' ternaryTruePart ':' ternaryFalsePart
