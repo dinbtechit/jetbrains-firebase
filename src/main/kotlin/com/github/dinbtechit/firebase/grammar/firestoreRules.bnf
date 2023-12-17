@@ -206,10 +206,7 @@ private path ::= IDENTIFIER | NUMBER_LITERAL | PATH_VARIABLE_LITERAL
 matchBody ::= '{' matchBodyElements* '}' {
  pin = 1
 }
-private matchBodyElements ::= allowBlock | functionBlock | matchBlock {
- recoverWhile = matchBlockRecovery
-}
-private matchBlockRecovery ::= !('}'|allowBlock | functionBlock | matchBlock)
+private matchBodyElements ::= allowBlock | functionBlock | matchBlock
 
 // --- Match Elements
 // Match - Allow
@@ -265,11 +262,11 @@ getPath ::= '/' getSubPath ('/' getSubPath)* {
 private getSubPath ::= IDENTIFIER | NUMBER_LITERAL | PATH_BUILT_IN_LITERAL
 
 // Object
-object ::= interfaceType  ('.' (interfaceType | objectProperty))* {
+object ::= interfaceType  ('.'  objectProperty)* {
  pin('.*') = 1
 }
 private interfaceType ::= REQUEST | RESOURCE | variableName
-objectProperty ::= functionCallStmt | IDENTIFIER
+objectProperty ::= functionCallStmt | mapVariable | interfaceType | variableName
 
 // --- Common Elements ----
 

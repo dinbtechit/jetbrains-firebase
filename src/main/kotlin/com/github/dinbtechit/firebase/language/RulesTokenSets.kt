@@ -11,7 +11,7 @@ object RulesTokenSets {
     
     val STRING = TokenSet.create(STRING_LITERAL)
 
-    val SECONDARY_KEYWORD = TokenSet.create(
+    val SECONDARY_KEYWORDS = TokenSet.create(
         IF, RETURN
     )
 

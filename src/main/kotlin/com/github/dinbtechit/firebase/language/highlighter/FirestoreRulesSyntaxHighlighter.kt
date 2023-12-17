@@ -2,6 +2,7 @@ package com.github.dinbtechit.firebase.language.highlighter
 
 
 
+import com.github.dinbtechit.firebase.language.RulesTokenSets
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.BOOL_LITERAL
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.COMMENT
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.KEYWORD
@@ -19,10 +20,19 @@ import com.intellij.psi.tree.IElementType
 
 
 class FirestoreRulesSyntaxHighlighter : SyntaxHighlighterBase() {
+    val ATTRIBUTES = mutableMapOf<IElementType, TextAttributesKey>()
+    init {
+        fillMap(ATTRIBUTES, RulesTokenSets.SECONDARY_KEYWORDS, SECONDARY_KEYWORD)
+        fillMap(ATTRIBUTES, RulesTokenSets.COMMENT, COMMENT)
+        fillMap(ATTRIBUTES, RulesTokenSets.KEYWORDS, KEYWORD)
+
+    }
 
     override fun getHighlightingLexer(): Lexer = FirestoreRulesLexerAdapter()
 
     override fun getTokenHighlights(elementType: IElementType?): Array<TextAttributesKey> {
+
+
 
         when (elementType) {
             FirestoreRulesTypes.LINE_COMMENT, FirestoreRulesTypes.BLOCK_COMMENT, FirestoreRulesTypes.RULES_VERSION -> {
