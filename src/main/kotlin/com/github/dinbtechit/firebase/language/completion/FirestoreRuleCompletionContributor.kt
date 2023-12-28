@@ -1,5 +1,6 @@
 package com.github.dinbtechit.firebase.language.completion
 
+import com.github.dinbtechit.firebase.language.fileType.RulesFile
 import com.github.dinbtechit.firebase.psi.FirestoreRulesTypes
 import com.github.dinbtechit.firebase.psi.types.PsiFirestoreRulesPermissionType
 import com.github.dinbtechit.firebase.psi.types.PsiFirestoreRulesPermissions
@@ -8,6 +9,7 @@ import com.github.dinbtechit.firebase.psi.types.PsiFirestoreRulesVersionDef
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.patterns.PlatformPatterns.psiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 
@@ -17,7 +19,7 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
 
 
         extend(CompletionType.BASIC,
-            psiElement(FirestoreRulesTypes.IDENTIFIER),
+            psiElement().withParent(psiFile(RulesFile::class.java)),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
                     parameters: CompletionParameters,
@@ -120,8 +122,7 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
 
         extend(CompletionType.BASIC,
             psiElement(FirestoreRulesTypes.IDENTIFIER)
-                .afterLeaf(psiElement(FirestoreRulesTypes.SERVICE))
-                .beforeLeaf("{"),
+                .afterLeaf(psiElement(FirestoreRulesTypes.SERVICE)),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
                     parameters: CompletionParameters,

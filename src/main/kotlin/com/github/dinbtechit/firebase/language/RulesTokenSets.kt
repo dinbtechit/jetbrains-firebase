@@ -6,7 +6,7 @@ import com.intellij.psi.tree.TokenSet
 object RulesTokenSets {
 
     val KEYWORDS = TokenSet.create(
-        ALLOW, FUNCTION, MATCH, SERVICE
+        ALLOW, FUNCTION, MATCH, SERVICE, LET
     )
     
     val STRING = TokenSet.create(STRING_LITERAL)

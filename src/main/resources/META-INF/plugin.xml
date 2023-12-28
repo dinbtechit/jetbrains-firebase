@@ -35,6 +35,13 @@
         <completion.contributor
                 language="FirestoreRules"
                 implementationClass="com.github.dinbtechit.firebase.language.completion.FirestoreRuleCompletionContributor"/>
+        <lang.foldingBuilder language="FirestoreRules" implementationClass="com.github.dinbtechit.firebase.language.codeFolding.BlockFoldingBuilder"/>
+        <lang.formatter language="FirestoreRules"
+                        implementationClass="com.github.dinbtechit.firebase.language.codeFormatting.FirestoreRulesFormattingModelBuilder"/>
+        <codeStyleSettingsProvider
+                implementation="com.github.dinbtechit.firebase.language.codeFormatting.FirestoreRulesCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="com.github.dinbtechit.firebase.language.codeFormatting.FirestoreLanguageCodeStyleSettingsProvider"/>
     </extensions>
 
 </idea-plugin>
