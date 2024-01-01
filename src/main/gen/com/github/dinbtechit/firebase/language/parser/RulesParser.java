@@ -334,18 +334,20 @@ public class RulesParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // commentRule | variableDeclaration
-  //                                  | variableAssignment | expressionWrapperWithSemi
-  //                                  | functionCallStmtWithSemi | returnStmt
+  // commentRule
+  //                                  | functionCallStmtWithSemi
+  //                                  | variableDeclaration
+  //                                  | variableAssignment
+  //                                  | expressionWrapperWithSemi | returnStmt
   static boolean functionBodyElements(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functionBodyElements")) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_);
     result_ = commentRule(builder_, level_ + 1);
+    if (!result_) result_ = functionCallStmtWithSemi(builder_, level_ + 1);
     if (!result_) result_ = variableDeclaration(builder_, level_ + 1);
     if (!result_) result_ = variableAssignment(builder_, level_ + 1);
     if (!result_) result_ = expressionWrapperWithSemi(builder_, level_ + 1);
-    if (!result_) result_ = functionCallStmtWithSemi(builder_, level_ + 1);
     if (!result_) result_ = returnStmt(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, RulesParser::functionBodyRecover);
     return result_;
@@ -380,44 +382,76 @@ public class RulesParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // functionName '(' functionArgumentList? ')' returnVariable?
-  public static boolean functionCallStmt(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "functionCallStmt")) return false;
+  // functionName '(' functionArgumentList? ')'
+  public static boolean functionCall(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCall")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, FUNCTION_CALL_STMT, "<function call stmt>");
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, FUNCTION_CALL, "<function call>");
     result_ = functionName(builder_, level_ + 1);
     result_ = result_ && consumeToken(builder_, L_PAREN);
-    result_ = result_ && functionCallStmt_2(builder_, level_ + 1);
+    result_ = result_ && functionCall_2(builder_, level_ + 1);
     result_ = result_ && consumeToken(builder_, R_PAREN);
-    result_ = result_ && functionCallStmt_4(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
     return result_;
   }
 
   // functionArgumentList?
-  private static boolean functionCallStmt_2(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "functionCallStmt_2")) return false;
+  private static boolean functionCall_2(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCall_2")) return false;
     functionArgumentList(builder_, level_ + 1);
     return true;
   }
 
+  /* ********************************************************** */
+  // functionCall returnVariable?
+  public static boolean functionCallStmt(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCallStmt")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_, FUNCTION_CALL_STMT, "<function call stmt>");
+    result_ = functionCall(builder_, level_ + 1);
+    result_ = result_ && functionCallStmt_1(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
   // returnVariable?
-  private static boolean functionCallStmt_4(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "functionCallStmt_4")) return false;
+  private static boolean functionCallStmt_1(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCallStmt_1")) return false;
     returnVariable(builder_, level_ + 1);
     return true;
+  }
+
+  /* ********************************************************** */
+  // !(')' | ';')
+  static boolean functionCallStmtRecovery(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCallStmtRecovery")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_);
+    result_ = !functionCallStmtRecovery_0(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // ')' | ';'
+  private static boolean functionCallStmtRecovery_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "functionCallStmtRecovery_0")) return false;
+    boolean result_;
+    result_ = consumeToken(builder_, R_PAREN);
+    if (!result_) result_ = consumeToken(builder_, SEMICOLON);
+    return result_;
   }
 
   /* ********************************************************** */
   // functionCallStmt SEMICOLON
   public static boolean functionCallStmtWithSemi(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "functionCallStmtWithSemi")) return false;
-    boolean result_;
+    boolean result_, pinned_;
     Marker marker_ = enter_section_(builder_, level_, _NONE_, FUNCTION_CALL_STMT_WITH_SEMI, "<function call stmt with semi>");
     result_ = functionCallStmt(builder_, level_ + 1);
+    pinned_ = result_; // pin = 1
     result_ = result_ && consumeToken(builder_, SEMICOLON);
-    exit_section_(builder_, level_, marker_, result_, false, null);
-    return result_;
+    exit_section_(builder_, level_, marker_, result_, pinned_, null);
+    return result_ || pinned_;
   }
 
   /* ********************************************************** */
@@ -536,6 +570,31 @@ public class RulesParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(builder_, level_, "ifConditionExpression")) return false;
     boolean result_;
     result_ = expressionWrapper(builder_, level_ + 1);
+    if (!result_) result_ = rulesMethod(builder_, level_ + 1);
+    if (!result_) result_ = functionCallStmt(builder_, level_ + 1);
+    if (!result_) result_ = object(builder_, level_ + 1);
+    if (!result_) result_ = variableName(builder_, level_ + 1);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // !(')'|';'|expressionWrapper | rulesMethod | functionCallStmt | object | variableName)
+  static boolean ifConditionExpressionRecovery(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ifConditionExpressionRecovery")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_);
+    result_ = !ifConditionExpressionRecovery_0(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // ')'|';'|expressionWrapper | rulesMethod | functionCallStmt | object | variableName
+  private static boolean ifConditionExpressionRecovery_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "ifConditionExpressionRecovery_0")) return false;
+    boolean result_;
+    result_ = consumeToken(builder_, R_PAREN);
+    if (!result_) result_ = consumeToken(builder_, SEMICOLON);
+    if (!result_) result_ = expressionWrapper(builder_, level_ + 1);
     if (!result_) result_ = rulesMethod(builder_, level_ + 1);
     if (!result_) result_ = functionCallStmt(builder_, level_ + 1);
     if (!result_) result_ = object(builder_, level_ + 1);
@@ -830,7 +889,31 @@ public class RulesParser implements PsiParser, LightPsiParser {
   static boolean matchBodyElements(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "matchBodyElements")) return false;
     boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NONE_);
     result_ = allowBlock(builder_, level_ + 1);
+    if (!result_) result_ = functionBlock(builder_, level_ + 1);
+    if (!result_) result_ = matchBlock(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, RulesParser::matchBodyElementsRecovery);
+    return result_;
+  }
+
+  /* ********************************************************** */
+  // !('}' | allowBlock | functionBlock | matchBlock)
+  static boolean matchBodyElementsRecovery(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "matchBodyElementsRecovery")) return false;
+    boolean result_;
+    Marker marker_ = enter_section_(builder_, level_, _NOT_);
+    result_ = !matchBodyElementsRecovery_0(builder_, level_ + 1);
+    exit_section_(builder_, level_, marker_, result_, false, null);
+    return result_;
+  }
+
+  // '}' | allowBlock | functionBlock | matchBlock
+  private static boolean matchBodyElementsRecovery_0(PsiBuilder builder_, int level_) {
+    if (!recursion_guard_(builder_, level_, "matchBodyElementsRecovery_0")) return false;
+    boolean result_;
+    result_ = consumeToken(builder_, R_BRACE);
+    if (!result_) result_ = allowBlock(builder_, level_ + 1);
     if (!result_) result_ = functionBlock(builder_, level_ + 1);
     if (!result_) result_ = matchBlock(builder_, level_ + 1);
     return result_;
@@ -1318,17 +1401,6 @@ public class RulesParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !('{')
-  static boolean serviceElementRecovery(PsiBuilder builder_, int level_) {
-    if (!recursion_guard_(builder_, level_, "serviceElementRecovery")) return false;
-    boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NOT_);
-    result_ = !consumeToken(builder_, L_BRACE);
-    exit_section_(builder_, level_, marker_, result_, false, null);
-    return result_;
-  }
-
-  /* ********************************************************** */
   // functionBlock | matchBlock
   static boolean serviceElements(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "serviceElements")) return false;
@@ -1518,15 +1590,23 @@ public class RulesParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IDENTIFIER
+  // IDENTIFIER {
+  // }
   public static boolean variableName(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "variableName")) return false;
     if (!nextTokenIs(builder_, IDENTIFIER)) return false;
     boolean result_;
     Marker marker_ = enter_section_(builder_);
     result_ = consumeToken(builder_, IDENTIFIER);
+    result_ = result_ && variableName_1(builder_, level_ + 1);
     exit_section_(builder_, marker_, VARIABLE_NAME, result_);
     return result_;
+  }
+
+  // {
+  // }
+  private static boolean variableName_1(PsiBuilder builder_, int level_) {
+    return true;
   }
 
   /* ********************************************************** */

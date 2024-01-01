@@ -25,6 +25,7 @@ public interface FirestoreRulesTypes {
   IElementType FUNCTION_ARGUMENT_LIST = new RulesElementTypes("FUNCTION_ARGUMENT_LIST");
   IElementType FUNCTION_BLOCK = new RulesElementTypes("FUNCTION_BLOCK");
   IElementType FUNCTION_BODY = new RulesElementTypes("FUNCTION_BODY");
+  IElementType FUNCTION_CALL = new RulesElementTypes("FUNCTION_CALL");
   IElementType FUNCTION_CALL_STMT = new RulesElementTypes("FUNCTION_CALL_STMT");
   IElementType FUNCTION_CALL_STMT_WITH_SEMI = new RulesElementTypes("FUNCTION_CALL_STMT_WITH_SEMI");
   IElementType FUNCTION_NAME = new RulesElementTypes("FUNCTION_NAME");
@@ -194,6 +195,9 @@ public interface FirestoreRulesTypes {
       }
       else if (type == FUNCTION_BODY) {
         return new PsiFirestoreRulesFunctionBodyImpl(node);
+      }
+      else if (type == FUNCTION_CALL) {
+        return new PsiFirestoreRulesFunctionCallImpl(node);
       }
       else if (type == FUNCTION_CALL_STMT) {
         return new PsiFirestoreRulesFunctionCallStmtImpl(node);

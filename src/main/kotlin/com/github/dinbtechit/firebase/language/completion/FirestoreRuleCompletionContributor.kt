@@ -17,6 +17,21 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
 
     init {
 
+        extend(CompletionType.BASIC,
+            psiElement(),
+            object : CompletionProvider<CompletionParameters>() {
+                override fun addCompletions(
+                    parameters: CompletionParameters,
+                    context: ProcessingContext, resultSet: CompletionResultSet
+                ) {
+                    println(parameters.position.toString())
+                    println(parameters.position.parent.toString())
+                    println(parameters.position.parent.parent.toString())
+                    println(parameters.position.parent.parent.parent.toString())
+                }
+            }
+        )
+
 
         extend(CompletionType.BASIC,
             psiElement().withParent(psiFile(RulesFile::class.java)),
@@ -45,9 +60,12 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
             })
 
         extend(CompletionType.BASIC,
-            psiElement().inside(psiElement(FirestoreRulesTypes.SERVICE_BODY)).andNot(
-                psiElement().inside(psiElement(FirestoreRulesTypes.FUNCTION_BLOCK)),
-            ).andNot(psiElement().inside(psiElement(FirestoreRulesTypes.MATCH_BLOCK))),
+            psiElement().inside(psiElement(FirestoreRulesTypes.SERVICE_BODY))
+                .and(
+                    psiElement().andNot(
+                        psiElement().inside(psiElement(FirestoreRulesTypes.FUNCTION_BLOCK)),
+                    ).andNot(psiElement().inside(psiElement(FirestoreRulesTypes.MATCH_BLOCK)))
+                ),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
                     parameters: CompletionParameters,
@@ -60,7 +78,7 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
             })
 
         extend(CompletionType.BASIC,
-            psiElement().inside(psiElement(FirestoreRulesTypes.FUNCTION_BODY)),
+            psiElement().withSuperParent(2, psiElement(FirestoreRulesTypes.FUNCTION_BODY)),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
                     parameters: CompletionParameters,
@@ -73,14 +91,31 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
             })
 
         extend(CompletionType.BASIC,
-            psiElement().inside(psiElement(FirestoreRulesTypes.MATCH_BODY)).and(
-                psiElement().afterLeaf("{"))
-                .andNot(
-                    psiElement().andOr(
-                        psiElement().inside(psiElement(FirestoreRulesTypes.ALLOW_BLOCK)),
-                        psiElement().inside(psiElement(FirestoreRulesTypes.FUNCTION_BODY))
-                    )
-            ),
+            psiElement().andOr(
+                psiElement().inside(psiElement(FirestoreRulesTypes.MATCH_BODY)).and(
+                    psiElement().afterLeaf("{")
+                )
+                    .andNot(
+                        psiElement().andOr(
+                            psiElement().inside(psiElement(FirestoreRulesTypes.ALLOW_BLOCK)),
+                            psiElement().inside(psiElement(FirestoreRulesTypes.FUNCTION_BODY))
+                        )
+                    ),
+            )
+            ,
+            object : CompletionProvider<CompletionParameters>() {
+                override fun addCompletions(
+                    parameters: CompletionParameters,
+                    context: ProcessingContext, resultSet: CompletionResultSet
+                ) {
+                    resultSet.addElement(LookupElementBuilder.create("allow"))
+                    resultSet.addElement(LookupElementBuilder.create("match"))
+                    resultSet.addElement(LookupElementBuilder.create("function"))
+                }
+            })
+
+        extend(CompletionType.BASIC,
+            psiElement().withSuperParent(2, psiElement(FirestoreRulesTypes.MATCH_BODY)),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
                     parameters: CompletionParameters,
@@ -107,11 +142,13 @@ class FirestoreRuleCompletionContributor : CompletionContributor() {
                 ) {
                     var permissionTypes = mutableListOf("get", "write", "read", "create", "list", "delete", "update")
                     if (PsiTreeUtil.prevVisibleLeaf(parameters.position) is PsiFirestoreRulesPermissions
-                        || PsiTreeUtil.prevVisibleLeaf(parameters.position)?.parent is PsiFirestoreRulesPermissions) {
+                        || PsiTreeUtil.prevVisibleLeaf(parameters.position)?.parent is PsiFirestoreRulesPermissions
+                    ) {
                         val permissions =
                             PsiTreeUtil.prevVisibleLeaf(parameters.position)?.parent?.children?.filterIsInstance<PsiFirestoreRulesPermissionType>()
                                 ?.map { it.text }
-                        permissionTypes = permissionTypes.filter { !(permissions !=null && permissions.contains(it)) }.toMutableList()
+                        permissionTypes = permissionTypes.filter { !(permissions != null && permissions.contains(it)) }
+                            .toMutableList()
                     }
                     for (permission in permissionTypes) {
                         resultSet.addElement(LookupElementBuilder.create(permission))

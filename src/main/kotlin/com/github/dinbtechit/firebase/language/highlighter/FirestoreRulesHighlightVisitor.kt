@@ -2,7 +2,6 @@ package com.github.dinbtechit.firebase.language.highlighter
 
 import com.github.dinbtechit.firebase.language.color.FirestoreRulesTextAttributeKeys.FUNCTION_NAME
 import com.github.dinbtechit.firebase.language.fileType.FirestoreFileType
-import com.github.dinbtechit.firebase.psi.types.PsiFirestoreRulesBindMethod
 import com.github.dinbtechit.firebase.psi.types.PsiFirestoreRulesRulesMethod
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
@@ -33,10 +32,10 @@ class FirestoreRulesHighlightVisitor : HighlightVisitor {
                 highlightHolder!!.add(createInfoHighlight(element.node, FUNCTION_NAME))
             }
 
-            element.parent is PsiFirestoreRulesBindMethod
+           /* element.parent is PsiFirestoreRulesB
                     && "bind" in element.text -> {
                 highlightHolder!!.add(createInfoHighlight(element.node, FUNCTION_NAME))
-            }
+            }*/
         }
     }
 

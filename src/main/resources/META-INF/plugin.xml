@@ -30,11 +30,15 @@
         <highlightVisitor order="first"
                 implementation="com.github.dinbtechit.firebase.language.highlighter.FirestoreRulesHighlightVisitor"/>
         <toolWindow factoryClass="com.github.dinbtechit.firebase.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <psi.referenceContributor language="FirestoreRules"
-                                  implementation="com.github.dinbtechit.firebase.psi.types.function.RuleFunctionReferenceContributor"/>
+
         <completion.contributor
                 language="FirestoreRules"
                 implementationClass="com.github.dinbtechit.firebase.language.completion.FirestoreRuleCompletionContributor"/>
+
+        <psi.referenceContributor language="FirestoreRules"
+                                  implementation="com.github.dinbtechit.firebase.language.referenceContributor.RuleFunctionReferenceContributor"/>
+
+
         <lang.foldingBuilder language="FirestoreRules" implementationClass="com.github.dinbtechit.firebase.language.codeFolding.BlockFoldingBuilder"/>
         <lang.formatter language="FirestoreRules"
                         implementationClass="com.github.dinbtechit.firebase.language.codeFormatting.FirestoreRulesFormattingModelBuilder"/>

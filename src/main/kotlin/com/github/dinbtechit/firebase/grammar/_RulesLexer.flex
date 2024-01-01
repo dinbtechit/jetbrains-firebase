@@ -101,12 +101,13 @@ IDENTIFIER=[_a-zA-Z0-9\-]+
   "bool"                        { return BOOL; }
   "int"                         { return INT; }
   "float"                       { return FLOAT; }
-  "number_kw"                   { return NUMBER; }
-  "string_kw"                   { return STRING; }
-  "map_kw"                      { return MAP; }
-  "timestamp_kw"                { return TIMESTAMP; }
-  "duration_kw"                 { return DURATION; }
-  "latlng_kw"                   { return LATLNG; }
+  "number"                      { return NUMBER; }
+  "string"                      { return STRING; }
+  "map"                         { return MAP; }
+  "timestamp"                   { return TIMESTAMP; }
+  "duration"                    { return DURATION; }
+  "path"                        { return PATH; }
+  "latlng"                      { return LATLNG; }
 
   {WHITESPACE}                  { return WHITESPACE; }
   {BOOL_LITERAL}                { return BOOL_LITERAL; }

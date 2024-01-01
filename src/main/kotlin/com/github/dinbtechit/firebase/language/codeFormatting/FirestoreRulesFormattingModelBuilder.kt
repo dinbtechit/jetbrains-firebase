@@ -34,6 +34,7 @@ class FirestoreRulesFormattingModelBuilder : FormattingModelBuilder {
             //.around(TokenSet.create(FirestoreRulesTypes.VARIABLE_NAME)).spaces(0)
             .before(FirestoreRulesTypes.EQ).spaces(1)
             .after(FirestoreRulesTypes.EQ).spaces(1)
+            .after(FirestoreRulesTypes.FUNCTION_NAME).spaces(0)
 
     }
 
@@ -146,12 +147,12 @@ class InnerCodeBlock(
         var child = myNode.firstChildNode
         while (child != null) {
             when {
-                child.elementType == FirestoreRulesTypes.SERVICE_BODY
-                        || child.elementType == FirestoreRulesTypes.FUNCTION_BODY
+                child.elementType == FirestoreRulesTypes.FUNCTION_BODY
                         || child.elementType == FirestoreRulesTypes.MATCH_BODY -> {
                     for (ch in child.getChildren(null)) {
                         when (ch.elementType) {
-                            FirestoreRulesTypes.FUNCTION_BLOCK
+                            FirestoreRulesTypes.FUNCTION_BLOCK,
+                                    FirestoreRulesTypes.MATCH_BLOCK
                             -> blocks.add(InnerCodeBlock(ch, codeStyleSettings, spacingBuilder))
 
                             else -> {

@@ -131,7 +131,6 @@ serviceName  ::= "cloud.firestore"| "firebase.storage"
 serviceBody ::= '{'  serviceElements*  '}' {
 pin = 1
 }
-private serviceElementRecovery ::= !('{')
 private serviceElements ::= functionBlock | matchBlock {
  recoverWhile = serviceBodyRecover
 }
@@ -140,6 +139,8 @@ private serviceBodyRecover ::= !('}'| functionBlock | matchBlock )
 // --- Function Block ----
 functionBlock ::= FUNCTION functionName '(' functionParameterList? ')' functionBody {
  pin = 1
+ mixin="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElementImpl"
+ implements="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElement"
 }
 functionName ::=  'get' | BIND | IDENTIFIER {
  pin = 1
@@ -152,9 +153,11 @@ functionBody ::= '{' functionBodyElements* '}' {
  pin = 1
 }
 
-private functionBodyElements ::= commentRule | variableDeclaration
-                                 | variableAssignment | expressionWrapperWithSemi
-                                 | functionCallStmtWithSemi | returnStmt {
+private functionBodyElements ::= commentRule
+                                 | functionCallStmtWithSemi
+                                 | variableDeclaration
+                                 | variableAssignment
+                                 | expressionWrapperWithSemi | returnStmt {
  pin = 1
  recoverWhile = functionBodyRecover
 }
@@ -166,7 +169,8 @@ private functionBodyRecover ::= !('}'|variableDeclaration | variableAssignment
 variableDeclaration ::= LET variableName variableDeclarationElements {
  pin = 1
 }
-variableName ::= IDENTIFIER
+variableName ::= IDENTIFIER {
+}
 private variableDeclarationElements ::= variableInitialization | SEMICOLON
 
 variableInitialization ::= "=" variableAssignmentElements SEMICOLON {
@@ -188,10 +192,15 @@ returnStmtElements ::= expressionWrapper | functionCallStmt | rulesMethod | vari
 // Function Call Expression
 
 functionCallStmtWithSemi ::= functionCallStmt SEMICOLON {
- pin = '1'
+ pin = 1
 }
 
-functionCallStmt ::= functionName '(' functionArgumentList? ')' returnVariable?
+functionCallStmt ::= functionCall returnVariable?
+functionCall ::= functionName '(' functionArgumentList? ')' {
+ mixin = "com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElementImpl"
+ implements = "com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElement"
+}
+private functionCallStmtRecovery ::= !(')' | ';')
 functionArgumentList ::= functionArgument (',' functionArgument)* {
  pin = 1
 }
@@ -208,15 +217,15 @@ private path ::= IDENTIFIER | NUMBER_LITERAL | PATH_VARIABLE_LITERAL
 matchBody ::= '{' matchBodyElements* '}' {
  pin = 1
 }
-private matchBodyElements ::= allowBlock | functionBlock | matchBlock
-
+private matchBodyElements ::= allowBlock | functionBlock | matchBlock {
+ recoverWhile = matchBodyElementsRecovery
+}
+private matchBodyElementsRecovery ::= !('}' | allowBlock | functionBlock | matchBlock)
 // --- Match Elements
 // Match - Allow
 allowBlock ::= ALLOW permissions allowConditionOrSemi {
  pin = 1
-
 }
-
 
 permissions ::= permissionType (',' permissionType)* {
  pin('.*') = 1
@@ -229,7 +238,9 @@ private allowConditionOrSemi ::= allowIfStmt | SEMICOLON
 allowIfStmt ::= COLON IF allowIfCondition SEMICOLON {
  pin = 1
 }
-allowIfCondition ::= ifLogic | ifLogicWithBrackets
+allowIfCondition ::= ifLogic | ifLogicWithBrackets {
+ pin = 1
+}
 
 
 // IF Block
@@ -238,6 +249,7 @@ ifLogicWithBrackets ::= L_PAREN ifConditionExpression R_PAREN {
  pin = 1
 }
 private ifConditionExpression ::= expressionWrapper | rulesMethod | functionCallStmt | object | variableName
+private ifConditionExpressionRecovery ::= !(')'|';'|expressionWrapper | rulesMethod | functionCallStmt | object | variableName)
 
 // rules.firestore methods
 rulesMethod ::= methods "(" getPath ")" ruleMethodReturnVariable? {
