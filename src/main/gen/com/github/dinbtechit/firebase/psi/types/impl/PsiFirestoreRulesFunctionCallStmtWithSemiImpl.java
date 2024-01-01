@@ -34,9 +34,9 @@ public class PsiFirestoreRulesFunctionCallStmtWithSemiImpl extends ASTWrapperPsi
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getSemicolon() {
-    return findNotNullChildByType(SEMICOLON);
+    return findChildByType(SEMICOLON);
   }
 
 }

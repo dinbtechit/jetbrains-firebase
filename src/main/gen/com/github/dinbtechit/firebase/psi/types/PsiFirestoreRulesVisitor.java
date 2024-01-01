@@ -4,6 +4,8 @@ package com.github.dinbtechit.firebase.psi.types;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
+import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElement;
+import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElement;
 
 public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
 
@@ -60,11 +62,15 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionBlock(@NotNull PsiFirestoreRulesFunctionBlock o) {
-    visitPsiElement(o);
+    visitFirestoreFunctionDeclarationNamedElement(o);
   }
 
   public void visitFunctionBody(@NotNull PsiFirestoreRulesFunctionBody o) {
     visitPsiElement(o);
+  }
+
+  public void visitFunctionCall(@NotNull PsiFirestoreRulesFunctionCall o) {
+    visitFirestoreFunctionCallNamedElement(o);
   }
 
   public void visitFunctionCallStmt(@NotNull PsiFirestoreRulesFunctionCallStmt o) {
@@ -233,6 +239,14 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
 
   public void visitVersionDef(@NotNull PsiFirestoreRulesVersionDef o) {
     visitPsiElement(o);
+  }
+
+  public void visitFirestoreFunctionCallNamedElement(@NotNull FirestoreFunctionCallNamedElement o) {
+    visitElement(o);
+  }
+
+  public void visitFirestoreFunctionDeclarationNamedElement(@NotNull FirestoreFunctionDeclarationNamedElement o) {
+    visitElement(o);
   }
 
   public void visitPsiElement(@NotNull PsiElement o) {

@@ -7,19 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface PsiFirestoreRulesFunctionCallStmt extends PsiElement {
 
-  @Nullable
-  PsiFirestoreRulesFunctionArgumentList getFunctionArgumentList();
-
   @NotNull
-  PsiFirestoreRulesFunctionName getFunctionName();
+  PsiFirestoreRulesFunctionCall getFunctionCall();
 
   @Nullable
   PsiFirestoreRulesReturnVariable getReturnVariable();
-
-  @NotNull
-  PsiElement getLParen();
-
-  @NotNull
-  PsiElement getRParen();
 
 }

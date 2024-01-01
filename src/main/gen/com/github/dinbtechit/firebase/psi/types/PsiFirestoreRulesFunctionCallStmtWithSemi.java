@@ -10,7 +10,7 @@ public interface PsiFirestoreRulesFunctionCallStmtWithSemi extends PsiElement {
   @NotNull
   PsiFirestoreRulesFunctionCallStmt getFunctionCallStmt();
 
-  @NotNull
+  @Nullable
   PsiElement getSemicolon();
 
 }

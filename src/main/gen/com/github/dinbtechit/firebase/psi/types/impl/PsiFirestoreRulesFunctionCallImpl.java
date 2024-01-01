@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.dinbtechit.firebase.psi.FirestoreRulesTypes.*;
-import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElementImpl;
+import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElementImpl;
 import com.github.dinbtechit.firebase.psi.types.*;
 
-public class PsiFirestoreRulesFunctionBlockImpl extends FirestoreFunctionDeclarationNamedElementImpl implements PsiFirestoreRulesFunctionBlock {
+public class PsiFirestoreRulesFunctionCallImpl extends FirestoreFunctionCallNamedElementImpl implements PsiFirestoreRulesFunctionCall {
 
-  public PsiFirestoreRulesFunctionBlockImpl(ASTNode node) {
+  public PsiFirestoreRulesFunctionCallImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PsiFirestoreRulesVisitor visitor) {
-    visitor.visitFunctionBlock(this);
+    visitor.visitFunctionCall(this);
   }
 
   @Override
@@ -29,38 +29,26 @@ public class PsiFirestoreRulesFunctionBlockImpl extends FirestoreFunctionDeclara
 
   @Override
   @Nullable
-  public PsiFirestoreRulesFunctionBody getFunctionBody() {
-    return findChildByClass(PsiFirestoreRulesFunctionBody.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiFirestoreRulesFunctionName getFunctionName() {
-    return findChildByClass(PsiFirestoreRulesFunctionName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiFirestoreRulesFunctionParameterList getFunctionParameterList() {
-    return findChildByClass(PsiFirestoreRulesFunctionParameterList.class);
+  public PsiFirestoreRulesFunctionArgumentList getFunctionArgumentList() {
+    return findChildByClass(PsiFirestoreRulesFunctionArgumentList.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getFunction() {
-    return findNotNullChildByType(FUNCTION);
+  public PsiFirestoreRulesFunctionName getFunctionName() {
+    return findNotNullChildByClass(PsiFirestoreRulesFunctionName.class);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLParen() {
-    return findChildByType(L_PAREN);
+    return findNotNullChildByType(L_PAREN);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getRParen() {
-    return findChildByType(R_PAREN);
+    return findNotNullChildByType(R_PAREN);
   }
 
 }

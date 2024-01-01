@@ -28,33 +28,15 @@ public class PsiFirestoreRulesFunctionCallStmtImpl extends ASTWrapperPsiElement 
   }
 
   @Override
-  @Nullable
-  public PsiFirestoreRulesFunctionArgumentList getFunctionArgumentList() {
-    return findChildByClass(PsiFirestoreRulesFunctionArgumentList.class);
-  }
-
-  @Override
   @NotNull
-  public PsiFirestoreRulesFunctionName getFunctionName() {
-    return findNotNullChildByClass(PsiFirestoreRulesFunctionName.class);
+  public PsiFirestoreRulesFunctionCall getFunctionCall() {
+    return findNotNullChildByClass(PsiFirestoreRulesFunctionCall.class);
   }
 
   @Override
   @Nullable
   public PsiFirestoreRulesReturnVariable getReturnVariable() {
     return findChildByClass(PsiFirestoreRulesReturnVariable.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLParen() {
-    return findNotNullChildByType(L_PAREN);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getRParen() {
-    return findNotNullChildByType(R_PAREN);
   }
 
 }
