@@ -2,6 +2,7 @@ package com.github.dinbtechit.firebase.language.codeFormatting
 
 import com.github.dinbtechit.firebase.language.FirestoreRulesLanguage
 import com.github.dinbtechit.firebase.language.RulesTokenSets
+import com.github.dinbtechit.firebase.language.fileType.RulesFile
 import com.github.dinbtechit.firebase.psi.FirestoreRulesTypes
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
@@ -63,6 +64,9 @@ class CodeBlock(
 
     // Defines when press enter -> New line when the intend should start
     override fun getChildAttributes(newChildIndex: Int): ChildAttributes {
+        if (node.firstChildNode.psi.parent is RulesFile) {
+            return ChildAttributes(Indent.getNoneIndent(), null)
+        }
         return ChildAttributes(Indent.getNormalIndent(), null)
     }
 
