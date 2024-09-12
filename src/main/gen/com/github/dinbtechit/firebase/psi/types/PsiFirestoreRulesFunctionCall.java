@@ -4,9 +4,8 @@ package com.github.dinbtechit.firebase.psi.types;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElement;
 
-public interface PsiFirestoreRulesFunctionCall extends FirestoreFunctionCallNamedElement {
+public interface PsiFirestoreRulesFunctionCall extends PsiElement {
 
   @Nullable
   PsiFirestoreRulesFunctionArgumentList getFunctionArgumentList();

@@ -10,24 +10,19 @@ import com.intellij.psi.*
 class FirestoreFunctionReference(element: PsiElement, textRange: TextRange) :
     PsiReferenceBase<PsiElement>(element, textRange), PsiPolyVariantReference {
 
-    //private var key: String = element.text.substring(textRange.startOffset, textRange.endOffset)
-
-    private var key = ""
-
-    init {
-        key = RulesPsiImplUtil.getFunctionName(element) ?: ""
-    }
-
     override fun resolve(): PsiElement? {
-        val resolveResult = multiResolve(false)
-        return resolveResult.map { it.element }.firstOrNull()
+        val resolveResult = multiResolve(true)
+        return resolveResult.firstOrNull { it.element?.text == element.text }?.element
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        val functions = RulesUtil.findFunctionsByElementParent(myElement, key)
+        val functions = RulesUtil.findFunctions(myElement, element.text)
         val results = mutableListOf<ResolveResult>()
         functions.forEach {
-            results.add(PsiElementResolveResult(it))
+            val f = RulesPsiImplUtil.getNameIdentifier(it)
+            if (f != null) {
+                results.add(PsiElementResolveResult(f))
+            }
         }
         return if (results.isNotEmpty())
             results.toTypedArray()
@@ -37,11 +32,11 @@ class FirestoreFunctionReference(element: PsiElement, textRange: TextRange) :
 
     override fun getVariants(): Array<Any> {
         val project = myElement.project
-        val functions = RulesUtil.findFunctionsByElementParent(myElement)
+        val functions = RulesUtil.findFunctions(myElement)
         val variants = mutableListOf<Any>()
         functions.forEach {
                 variants.add(
-                    LookupElementBuilder.create(it.functionName?.text!!)
+                    LookupElementBuilder.create(it.text!!)
                         .withIcon(AllIcons.Nodes.Function)
                 )
 

@@ -8,12 +8,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.dinbtechit.firebase.psi.FirestoreRulesTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionNameNamedElementImpl;
 import com.github.dinbtechit.firebase.psi.types.*;
+import com.github.dinbtechit.firebase.psi.RulesPsiImplUtil;
 
-public class PsiFirestoreRulesFunctionNameImpl extends ASTWrapperPsiElement implements PsiFirestoreRulesFunctionName {
+public class PsiFirestoreRulesFunctionNameImpl extends FirestoreFunctionNameNamedElementImpl implements PsiFirestoreRulesFunctionName {
 
-  public PsiFirestoreRulesFunctionNameImpl(@NotNull ASTNode node) {
+  public PsiFirestoreRulesFunctionNameImpl(ASTNode node) {
     super(node);
   }
 
@@ -28,21 +29,9 @@ public class PsiFirestoreRulesFunctionNameImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @Nullable
-  public PsiElement getBind() {
-    return findChildByType(BIND);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGet() {
-    return findChildByType(GET);
-  }
-
-  @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

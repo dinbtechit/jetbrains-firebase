@@ -8,6 +8,7 @@
  psiImplClassSuffix="Impl"
  psiPackage="com.github.dinbtechit.firebase.psi.types"
  psiImplPackage="com.github.dinbtechit.firebase.psi.types.impl"
+ psiImplUtilClass="com.github.dinbtechit.firebase.psi.RulesPsiImplUtil"
 
  elementTypeHolderClass="com.github.dinbtechit.firebase.psi.FirestoreRulesTypes"
  elementTypeClass="com.github.dinbtechit.firebase.psi.RulesElementTypes"
@@ -114,11 +115,12 @@
    ]
    //extends('.*Expression') = 'expressionWrapper'
    generateTokenAccessors = true
+
 }
 
 ruleFile ::= versionDef? (serviceBlock*)? {
  pin = 1
- }
+}
 versionDef ::= RULES_VERSION '=' STRING_LITERAL SEMICOLON {
  pin = 1
 }
@@ -139,11 +141,11 @@ private serviceBodyRecover ::= !('}'| functionBlock | matchBlock )
 // --- Function Block ----
 functionBlock ::= FUNCTION functionName '(' functionParameterList? ')' functionBody {
  pin = 1
- mixin="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElementImpl"
- implements="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElement"
 }
-functionName ::=  'get' | BIND | IDENTIFIER {
+functionName ::=  IDENTIFIER {
  pin = 1
+ mixin="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionNameNamedElementImpl"
+ implements="com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionNameNamedElement"
 }
 functionParameterList ::=  functionParameter (',' functionParameter )*  {
  pin = 1
@@ -153,7 +155,7 @@ functionBody ::= '{' functionBodyElements* '}' {
  pin = 1
 }
 
-private functionBodyElements ::= commentRule
+private functionBodyElements ::=  commentRule
                                  | functionCallStmtWithSemi
                                  | variableDeclaration
                                  | variableAssignment
@@ -170,6 +172,8 @@ variableDeclaration ::= LET variableName variableDeclarationElements {
  pin = 1
 }
 variableName ::= IDENTIFIER {
+ implements = "com.github.dinbtechit.firebase.language.referenceContributor.variable.FirestoreVariableNamedElement"
+ mixin = "com.github.dinbtechit.firebase.language.referenceContributor.variable.FirestoreVariableNamedElementImpl"
 }
 private variableDeclarationElements ::= variableInitialization | SEMICOLON
 
@@ -196,10 +200,7 @@ functionCallStmtWithSemi ::= functionCallStmt SEMICOLON {
 }
 
 functionCallStmt ::= functionCall returnVariable?
-functionCall ::= functionName '(' functionArgumentList? ')' {
- mixin = "com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElementImpl"
- implements = "com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElement"
-}
+functionCall ::= functionName '(' functionArgumentList? ')'
 private functionCallStmtRecovery ::= !(')' | ';')
 functionArgumentList ::= functionArgument (',' functionArgument)* {
  pin = 1

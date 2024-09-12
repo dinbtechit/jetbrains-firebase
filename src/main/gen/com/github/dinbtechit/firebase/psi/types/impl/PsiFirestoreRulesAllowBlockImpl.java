@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.dinbtechit.firebase.psi.FirestoreRulesTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.dinbtechit.firebase.psi.types.*;
+import com.github.dinbtechit.firebase.psi.RulesPsiImplUtil;
 
 public class PsiFirestoreRulesAllowBlockImpl extends ASTWrapperPsiElement implements PsiFirestoreRulesAllowBlock {
 

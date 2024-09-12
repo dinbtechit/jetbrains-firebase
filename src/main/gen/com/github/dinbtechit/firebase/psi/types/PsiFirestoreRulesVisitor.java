@@ -4,8 +4,8 @@ package com.github.dinbtechit.firebase.psi.types;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
-import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElement;
-import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionDeclarationNamedElement;
+import com.github.dinbtechit.firebase.language.referenceContributor.variable.FirestoreVariableNamedElement;
+import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionNameNamedElement;
 
 public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
 
@@ -62,7 +62,7 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionBlock(@NotNull PsiFirestoreRulesFunctionBlock o) {
-    visitFirestoreFunctionDeclarationNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitFunctionBody(@NotNull PsiFirestoreRulesFunctionBody o) {
@@ -70,7 +70,7 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionCall(@NotNull PsiFirestoreRulesFunctionCall o) {
-    visitFirestoreFunctionCallNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitFunctionCallStmt(@NotNull PsiFirestoreRulesFunctionCallStmt o) {
@@ -82,7 +82,7 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionName(@NotNull PsiFirestoreRulesFunctionName o) {
-    visitPsiElement(o);
+    visitFirestoreFunctionNameNamedElement(o);
   }
 
   public void visitFunctionParameter(@NotNull PsiFirestoreRulesFunctionParameter o) {
@@ -234,18 +234,18 @@ public class PsiFirestoreRulesVisitor extends PsiElementVisitor {
   }
 
   public void visitVariableName(@NotNull PsiFirestoreRulesVariableName o) {
-    visitPsiElement(o);
+    visitFirestoreVariableNamedElement(o);
   }
 
   public void visitVersionDef(@NotNull PsiFirestoreRulesVersionDef o) {
     visitPsiElement(o);
   }
 
-  public void visitFirestoreFunctionCallNamedElement(@NotNull FirestoreFunctionCallNamedElement o) {
+  public void visitFirestoreFunctionNameNamedElement(@NotNull FirestoreFunctionNameNamedElement o) {
     visitElement(o);
   }
 
-  public void visitFirestoreFunctionDeclarationNamedElement(@NotNull FirestoreFunctionDeclarationNamedElement o) {
+  public void visitFirestoreVariableNamedElement(@NotNull FirestoreVariableNamedElement o) {
     visitElement(o);
   }
 

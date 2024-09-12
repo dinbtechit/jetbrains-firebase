@@ -8,12 +8,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.dinbtechit.firebase.psi.FirestoreRulesTypes.*;
-import com.github.dinbtechit.firebase.language.referenceContributor.function.FirestoreFunctionCallNamedElementImpl;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.dinbtechit.firebase.psi.types.*;
+import com.github.dinbtechit.firebase.psi.RulesPsiImplUtil;
 
-public class PsiFirestoreRulesFunctionCallImpl extends FirestoreFunctionCallNamedElementImpl implements PsiFirestoreRulesFunctionCall {
+public class PsiFirestoreRulesFunctionCallImpl extends ASTWrapperPsiElement implements PsiFirestoreRulesFunctionCall {
 
-  public PsiFirestoreRulesFunctionCallImpl(ASTNode node) {
+  public PsiFirestoreRulesFunctionCallImpl(@NotNull ASTNode node) {
     super(node);
   }
 
